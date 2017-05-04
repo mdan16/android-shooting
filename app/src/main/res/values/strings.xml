@@ -8,4 +8,8 @@
     <string name="ok_label">OK</string>
     <string name="about_title">About Shooting Game</string>
     <string name="about_text">about text hogehoge</string>
+
+    <string name="title_activity_game">GameActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>

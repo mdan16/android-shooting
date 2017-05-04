@@ -6,9 +6,11 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.app.Activity;
 
 public class MainFragment extends Fragment {
     private AlertDialog mDialog;
+    private MainActivity parent;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -25,6 +27,20 @@ public class MainFragment extends Fragment {
                 mDialog = builder.show();
             }
         });
+
+        View newButton = rootView.findViewById(R.id.new_button);
+        newButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                parent.startGame();
+            }
+        });
         return rootView;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        parent = (MainActivity) activity;
+        super.onAttach(activity);
     }
 }
