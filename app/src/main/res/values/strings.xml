@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">ShootingGame</string>
+    <string name="long_app_name">Shooting Game</string>
+    <string name="actio_setting">Settings</string>
+    <string name="continue_label">Continue</string>
+    <string name="new_game_label">New Game</string>
+    <string name="about_label">About</string>
+    <string name="ok_label">OK</string>
+    <string name="about_title">About Shooting Game</string>
+    <string name="about_text">about text hogehoge</string>
+</resources>
