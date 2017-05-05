@@ -19,34 +19,11 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.view.MotionEvent;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-/*
-public class GameView extends View {
-    private Fighter fighter;
-
-    public GameView(Context context) {
-        super(context);
-    }
-
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-
-        int width = canvas.getWidth();
-        int height = canvas.getHeight();
-
-        if (fighter == null) {
-            Bitmap fighterBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.fighter);
-            fighterBitmap = Bitmap.createScaledBitmap(fighterBitmap, 100, 100, false);
-            fighter = new Fighter(fighterBitmap, width, height);
-        }
-
-        fighter.draw(canvas);
-    }
-}
-*/
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private static final float ACCEL_WEIGHT = 3f;
@@ -59,6 +36,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private final Bitmap fighterBitmap;
     private float fighterX;
     private Fighter fighter;
+    private final List<BaseObject> bulletList = new ArrayList<>();
 
     public GameView(Context context) {
         super(context);
@@ -93,7 +71,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     continue;
                 }
 
-                drawFighter(canvas);
+                drawGame(canvas);
 
                 holder.unlockCanvasAndPost(canvas);
                 synchronized (this) {
@@ -184,8 +162,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         stopDrawThread();
     }
 
-    public void drawFighter(Canvas canvas) {
-        canvas.drawColor(Color.BLACK);
+    public void drawGame(Canvas canvas) {
+        canvas.drawColor(Color.WHITE);
+        int width = canvas.getWidth();
+        int height = canvas.getHeight();
 
         //canvas.drawBitmap(fighterBitmap, 50, 50, paint);
         //canvas.drawBitmap(fighterBitmap, fighterX, 200, paint);
@@ -193,6 +173,38 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             fighter = new Fighter(fighterBitmap, 0);
         }
 
+        drawObjectList(canvas, bulletList, width, height);
         fighter.draw(canvas);
+    }
+
+    public static void drawObjectList(Canvas canvas, List<BaseObject> objectList, int width, int height) {
+        for (int i = 0; i < objectList.size(); i++) {
+            BaseObject object = objectList.get(i);
+            if (object.isAvailable(width, height)) {
+                object.move();
+                object.draw(canvas);
+            } else {
+                objectList.remove(object);
+                i--;
+            }
+        }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                fire(event.getX(), event.getY());
+                break;
+        }
+
+        return super.onTouchEvent(event);
+    }
+
+    private void fire(float x, float y) {
+        float alignX = (x - fighter.rect.centerX()) / Math.abs(y - fighter.rect.centerY());
+
+        Bullet bullet = new Bullet(fighter.rect, alignX);
+        bulletList.add(0, bullet);
     }
 }

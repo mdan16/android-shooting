@@ -11,7 +11,7 @@ import android.graphics.RectF;
 import android.view.Window;
 import android.view.WindowManager;
 
-public class Fighter {
+public class Fighter extends BaseObject {
     private final Paint paint = new Paint();
 
     public final Bitmap fighterBitmap;
@@ -30,11 +30,16 @@ public class Fighter {
         rect = new RectF(left, top, right, bottom);
     }
 
-    void draw(Canvas canvas) {
+    @Override
+    public void draw(Canvas canvas) {
         canvas.drawBitmap(fighterBitmap, rect.left, rect.top, paint);
     }
 
-    void move(float xOffset) {
+    @Override
+    public void move() {
+        move(0);
+    }
+    public void move(float xOffset) {
         if (rect.left <= 0 ) {
             rect.offset(1, 0);
             return;
