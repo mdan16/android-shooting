@@ -194,17 +194,15 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                fire(event.getX(), event.getY());
+                fire();
                 break;
         }
 
         return super.onTouchEvent(event);
     }
 
-    private void fire(float x, float y) {
-        float alignX = (x - fighter.rect.centerX()) / Math.abs(y - fighter.rect.centerY());
-
-        Bullet bullet = new Bullet(fighter.rect, alignX);
+    private void fire() {
+        Bullet bullet = new Bullet(fighter.rect);
         bulletList.add(0, bullet);
     }
 }
