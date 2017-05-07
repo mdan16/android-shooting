@@ -38,8 +38,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private Fighter enemy;
     private final List<BaseObject> bulletList = new ArrayList<>();
 
-    private long fighterHp;
-    private long enemyHp;
     private final Paint paintScore = new Paint();
     private Random rnd = new Random();
 
@@ -194,11 +192,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             if (fighter.isHit(bullet)) {
                 bullet.hit();
                 fighter.hit();
-                fighterHp += 10;
             } else if (enemy.isHit(bullet)) {
                 enemy.hit();
                 bullet.hit();
-                enemyHp += 10;
             }
 
             for (int j = i+1; j < bulletList.size(); j++) {
@@ -216,8 +212,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         fighter.draw(canvas);
         enemy.draw(canvas);
-        canvas.drawText("Fighter HP: " + fighterHp, 0, SCORE_TEXT_SIZE, paintScore);
-        canvas.drawText("Enemy HP: " + enemyHp, 0, SCORE_TEXT_SIZE*2, paintScore);
+        canvas.drawText("Fighter HP: " + fighter.getHp(), 0, SCORE_TEXT_SIZE, paintScore);
+        canvas.drawText("Enemy HP: " + enemy.getHp(), 0, SCORE_TEXT_SIZE*2, paintScore);
     }
 
     public static void drawObjectList(Canvas canvas, List<BaseObject> objectList, int width, int height) {

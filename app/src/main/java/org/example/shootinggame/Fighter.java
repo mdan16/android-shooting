@@ -21,6 +21,8 @@ public class Fighter extends BaseObject {
     private int winWidth, winHeight;
     public boolean enemy;
 
+    private int hp = 1000;
+
     private Random rnd = new Random();
     private static int enemySpeed = 10;
 
@@ -91,7 +93,12 @@ public class Fighter extends BaseObject {
 
     @Override
     public void hit() {
+        hp -= 10;
         return;
+    }
+
+    public int getHp() {
+        return hp;
     }
 
     @Override
