@@ -11,20 +11,30 @@ import android.graphics.RectF;
 import android.view.Window;
 import android.view.WindowManager;
 
+import java.util.Random;
+
 public class Fighter extends BaseObject {
     private final Paint paint = new Paint();
 
     public final Bitmap fighterBitmap;
     public final RectF rect;
     private int winWidth, winHeight;
+    public boolean enemy;
 
-    public Fighter(Bitmap bmp, int left) {
+    private Random rnd = new Random();
+    private static int enemySpeed = 10;
+
+    public Fighter(Bitmap bmp, int left, boolean enemy) {
+        this.enemy = enemy;
         winHeight = GameActivity.winHeight;
         winWidth = GameActivity.winWidth;
 
         fighterBitmap = bmp;
 
         int top = winHeight - 300;
+        if (enemy) {
+            top = 0;
+        }
         int right = left + bmp.getWidth();
         int bottom = top + bmp.getHeight();
         rect = new RectF(left, top, right, bottom);
@@ -32,6 +42,9 @@ public class Fighter extends BaseObject {
 
     @Override
     public void draw(Canvas canvas) {
+        if (state != STATE_NORMAL) {
+            return;
+        }
         canvas.drawBitmap(fighterBitmap, rect.left, rect.top, paint);
     }
 
@@ -48,5 +61,45 @@ public class Fighter extends BaseObject {
             return;
         }
         rect.offset(xOffset, 0);
+    }
+
+    public void enemyMove() {
+        if (this.getType() == Type.Fighter) {
+            return;
+        }
+
+        if (rnd.nextInt(100) > 95) {
+            enemySpeed = -1 * enemySpeed;
+        }
+        move(enemySpeed);
+    }
+
+    @Override
+    public boolean isHit(BaseObject object) {
+        if (object.state == STATE_DESTROYED) {
+            return false;
+        }
+        if (!(this.getType() == Type.Fighter && object.getType() == Type.EnemyBullet) &&
+                !(this.getType() == Type.Enemy && object.getType() == Type.FighterBullet)) {
+            return false;
+        }
+
+        int x = Math.round(object.xPosition);
+        int y = Math.round(object.yPosition);
+        return rect.contains(x, y);
+    }
+
+    @Override
+    public void hit() {
+        return;
+    }
+
+    @Override
+    public Type getType() {
+        if (!enemy) {
+            return Type.Fighter;
+        } else {
+            return Type.Enemy;
+        }
     }
 }

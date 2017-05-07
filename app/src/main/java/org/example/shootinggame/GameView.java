@@ -12,6 +12,7 @@ import android.view.Surface;
 import android.view.View;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Matrix;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -23,29 +24,38 @@ import android.view.MotionEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private static final float ACCEL_WEIGHT = 3f;
     private static final int DRAW_INTERVAL = 1000 / 60;
-    private static final float TEXT_SIZE = 40f;
-
-    private final Paint paint = new Paint();
-    private final Paint textPaint = new Paint();
+    private static final float SCORE_TEXT_SIZE = 60.0f;
 
     private final Bitmap fighterBitmap;
-    private float fighterX;
+    private final Bitmap enemyBitmap;
     private Fighter fighter;
+    private Fighter enemy;
     private final List<BaseObject> bulletList = new ArrayList<>();
+
+    private long fighterHp;
+    private long enemyHp;
+    private final Paint paintScore = new Paint();
+    private Random rnd = new Random();
 
     public GameView(Context context) {
         super(context);
 
-        textPaint.setColor(Color.WHITE);
-        textPaint.setTextSize(TEXT_SIZE);
+        paintScore.setColor(Color.BLACK);
+        paintScore.setTextSize(SCORE_TEXT_SIZE);
+        paintScore.setAntiAlias(true);
 
         Bitmap fighterBitmapTemp = BitmapFactory.decodeResource(getResources(), R.drawable.fighter);
         fighterBitmap = Bitmap.createScaledBitmap(fighterBitmapTemp, 100, 100, false);
+
+        Bitmap enemyBitmapTemp = BitmapFactory.decodeResource(getResources(), R.drawable.enemy);
+        enemyBitmap = Bitmap.createScaledBitmap(enemyBitmapTemp, 100, 100, false);
+
 
         getHolder().addCallback(this);
     }
@@ -170,11 +180,44 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         //canvas.drawBitmap(fighterBitmap, 50, 50, paint);
         //canvas.drawBitmap(fighterBitmap, fighterX, 200, paint);
         if (fighter == null) {
-            fighter = new Fighter(fighterBitmap, 0);
+            fighter = new Fighter(fighterBitmap, 0, false);
+        }
+        if (enemy == null) {
+            enemy = new Fighter(enemyBitmap, 200, true);
         }
 
         drawObjectList(canvas, bulletList, width, height);
+
+        for (int i = 0; i < bulletList.size(); i++) {
+            BaseObject bullet = bulletList.get(i);
+
+            if (fighter.isHit(bullet)) {
+                bullet.hit();
+                fighter.hit();
+                fighterHp += 10;
+            } else if (enemy.isHit(bullet)) {
+                enemy.hit();
+                bullet.hit();
+                enemyHp += 10;
+            }
+
+            for (int j = i+1; j < bulletList.size(); j++) {
+                BaseObject bullet2 = bulletList.get(j);
+
+                if (bullet2.isHit(bullet)) {
+                    bullet.hit();
+                    bullet2.hit();
+                }
+            }
+        }
+
+        enemy.enemyMove();
+        enemyFire();
+
         fighter.draw(canvas);
+        enemy.draw(canvas);
+        canvas.drawText("Fighter HP: " + fighterHp, 0, SCORE_TEXT_SIZE, paintScore);
+        canvas.drawText("Enemy HP: " + enemyHp, 0, SCORE_TEXT_SIZE*2, paintScore);
     }
 
     public static void drawObjectList(Canvas canvas, List<BaseObject> objectList, int width, int height) {
@@ -194,15 +237,22 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                fire();
+                fighterFire();
                 break;
         }
 
         return super.onTouchEvent(event);
     }
 
-    private void fire() {
-        Bullet bullet = new Bullet(fighter.rect);
+    private void fighterFire() {
+        Bullet bullet = new Bullet(fighter.rect, false);
         bulletList.add(0, bullet);
     }
+    private void enemyFire() {
+        if (rnd.nextInt(10) > 8) {
+            Bullet bullet = new Bullet(enemy.rect, true);
+            bulletList.add(0, bullet);
+        }
+    }
+
 }
