@@ -4,6 +4,7 @@ package org.example.shootinggame;
  * Created by mdan on 2017/05/04.
  */
 
+import android.app.usage.UsageEvents;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
+import android.os.Handler;
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private static final float ACCEL_WEIGHT = 3f;
@@ -40,6 +42,17 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     private final Paint paintScore = new Paint();
     private Random rnd = new Random();
+
+    public interface EventCallback {
+        void onGameOver(String winnerName, String loserName, boolean win);
+    }
+
+    private EventCallback eventCallback;
+    public void setEventCallback(EventCallback eventCallback) {
+        this.eventCallback = eventCallback;
+    }
+
+    private Handler handler = new Handler();
 
     public GameView(Context context) {
         super(context);
@@ -212,8 +225,31 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         fighter.draw(canvas);
         enemy.draw(canvas);
-        canvas.drawText("Fighter HP: " + fighter.getHp(), 0, SCORE_TEXT_SIZE, paintScore);
-        canvas.drawText("Enemy HP: " + enemy.getHp(), 0, SCORE_TEXT_SIZE*2, paintScore);
+
+        int fighterHp = fighter.getHp();
+        int enemyHp = enemy.getHp();
+
+        if (fighterHp <= 0 || enemyHp <= 0) {
+            final String winnerName, loserName;
+            final boolean win;
+            if (fighterHp <= 0) {
+                winnerName = enemy.getName();
+                loserName = fighter.getName();
+                win = false;
+            } else {
+                winnerName = fighter.getName();
+                loserName = enemy.getName();
+                win = true;
+            }
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    eventCallback.onGameOver(winnerName, loserName, win);
+                }
+            });
+        }
+        canvas.drawText("Fighter HP: " + fighterHp, 0, SCORE_TEXT_SIZE, paintScore);
+        canvas.drawText("Enemy HP: " + enemyHp, 0, SCORE_TEXT_SIZE*2, paintScore);
     }
 
     public static void drawObjectList(Canvas canvas, List<BaseObject> objectList, int width, int height) {

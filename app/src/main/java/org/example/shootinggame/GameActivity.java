@@ -6,8 +6,9 @@ import android.view.Display;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
-public class GameActivity extends AppCompatActivity {
+public class GameActivity extends AppCompatActivity implements GameView.EventCallback {
     private GameView gameView;
     public static int winWidth, winHeight;
 
@@ -15,6 +16,7 @@ public class GameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         gameView = new GameView(this);
+        gameView.setEventCallback(this);
         gameView.startSensor();
         setContentView(gameView);
 
@@ -22,5 +24,17 @@ public class GameActivity extends AppCompatActivity {
         Display disp = wm.getDefaultDisplay();
         winWidth = disp.getWidth();
         winHeight = disp.getHeight();
+    }
+
+    @Override
+    public void onGameOver(String winnerName, String loserName, boolean win) {
+        gameView.stopDrawThread();
+        String message;
+        if (win) {
+            message = "You Win";
+        } else {
+            message = "You Lose";
+        }
+        Toast.makeText(this, message + "\nWinner: " + winnerName + "\nLoser: " + loserName, Toast.LENGTH_LONG).show();
     }
 }

@@ -21,7 +21,8 @@ public class Fighter extends BaseObject {
     private int winWidth, winHeight;
     public boolean enemy;
 
-    private int hp = 1000;
+    private String name;
+    private int hp = 100;
 
     private Random rnd = new Random();
     private static int enemySpeed = 10;
@@ -33,9 +34,11 @@ public class Fighter extends BaseObject {
 
         fighterBitmap = bmp;
 
+        name = "Fighter";
         int top = winHeight - 300;
         if (enemy) {
             top = 0;
+            name = "Enemy";
         }
         int right = left + bmp.getWidth();
         int bottom = top + bmp.getHeight();
@@ -99,6 +102,9 @@ public class Fighter extends BaseObject {
 
     public int getHp() {
         return hp;
+    }
+    public String getName() {
+        return name;
     }
 
     @Override
