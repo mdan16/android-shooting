@@ -35,11 +35,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private static final float ACCEL_WEIGHT = 5f;
     private static final int DRAW_INTERVAL = 1000 / 60;
     private static final float SCORE_TEXT_SIZE = 60.0f;
+    private static final float COUNT_TEXT_SIZE = 720.0f;
 
     private boolean storeFlag = false;
     private boolean obstacleFlag = false;
-    private int timer = 90;
-    final CountDownTimer countDownTimer = new CountDownTimer(180000, 1000) {
+    private int timer = 94;
+    final CountDownTimer countDownTimer = new CountDownTimer(90000, 1000) {
         @Override
         public void onTick(long millisUntilFinished) {
             timer--;
@@ -63,6 +64,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private final List<BaseObject> bulletList = new ArrayList<>();
 
     private final Paint paintScore = new Paint();
+    private final Paint paintCount = new Paint();
     private Random rnd = new Random();
     private Context context;
 
@@ -92,6 +94,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         paintScore.setColor(Color.BLACK);
         paintScore.setTextSize(SCORE_TEXT_SIZE);
         paintScore.setAntiAlias(true);
+        paintCount.setColor(Color.BLACK);
+        paintCount.setTextSize(COUNT_TEXT_SIZE);
+        paintCount.setAntiAlias(true);
 
         Bitmap fighterBitmapTemp = BitmapFactory.decodeResource(getResources(), R.drawable.fighter);
         fighterBitmap = Bitmap.createScaledBitmap(fighterBitmapTemp, 150, 150, false);
@@ -236,6 +241,46 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             enemy = new Fighter(enemyBitmap, 200, true);
         }
 
+        if (timer > 90) {
+            canvas.drawText("  " + String.valueOf(timer - 90), 0, COUNT_TEXT_SIZE, paintCount);
+            return;
+        }
+
+        int fighterHp = fighter.getHp();
+        int enemyHp = enemy.getHp();
+
+        if (fighterHp <= 0 || enemyHp <= 0 || timer == 0) {
+            final String winnerName, loserName;
+            final boolean win;
+            if (fighterHp <= 0) {
+                winnerName = enemy.getName();
+                loserName = fighter.getName();
+                win = false;
+            } else if (enemyHp <= 0){
+                winnerName = fighter.getName();
+                loserName = enemy.getName();
+                win = true;
+            } else {
+                if (fighterHp > enemyHp) {
+                    winnerName = fighter.getName();
+                    loserName = enemy.getName();
+                    win = true;
+                } else {
+                    winnerName = enemy.getName();
+                    loserName = fighter.getName();
+                    win = false;
+                }
+            }
+            if (win) {
+                canvas.drawText("You Win", 0, SCORE_TEXT_SIZE, paintScore);
+            } else {
+                canvas.drawText("You Lose", 0, SCORE_TEXT_SIZE, paintScore);
+            }
+            canvas.drawText("Winner:" + winnerName, 0, SCORE_TEXT_SIZE*2, paintScore);
+            canvas.drawText("Loser:" + loserName, 0, SCORE_TEXT_SIZE*3, paintScore);
+            return;
+        }
+
         drawObjectList(canvas, bulletList, width, height);
         drawObjectList(canvas, obstacleList, width, height);
 
@@ -291,43 +336,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         fighter.draw(canvas);
         enemy.draw(canvas);
 
-        int fighterHp = fighter.getHp();
-        int enemyHp = enemy.getHp();
 
-        if (fighterHp <= 0 || enemyHp <= 0 || timer == 0) {
-            final String winnerName, loserName;
-            final boolean win;
-            if (fighterHp <= 0) {
-                winnerName = enemy.getName();
-                loserName = fighter.getName();
-                win = false;
-            } else if (enemyHp <= 0){
-                winnerName = fighter.getName();
-                loserName = enemy.getName();
-                win = true;
-            } else {
-                if (fighterHp > enemyHp) {
-                    winnerName = fighter.getName();
-                    loserName = enemy.getName();
-                    win = true;
-                } else {
-                    winnerName = enemy.getName();
-                    loserName = fighter.getName();
-                    win = false;
-                }
-            }
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    eventCallback.onGameOver(winnerName, loserName, win);
-                }
-            });
-        }
-        if (timer%10 == 0 && storeFlag == true) {
+        if (timer%5 == 0 && storeFlag == true) {
             fighter.store();
             enemy.store();
             storeFlag = false;
-        } else if ((timer+1)%10 == 0) {
+        } else if ((timer+1)%5 == 0) {
             storeFlag = true;
         }
 

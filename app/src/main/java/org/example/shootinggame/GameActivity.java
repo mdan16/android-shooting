@@ -1,5 +1,6 @@
 package org.example.shootinggame;
 
+import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Display;
@@ -11,6 +12,20 @@ import android.widget.Toast;
 public class GameActivity extends AppCompatActivity implements GameView.EventCallback {
     private GameView gameView;
     public static int winWidth, winHeight;
+    private int timer = 3;
+    final CountDownTimer countDownTimer = new CountDownTimer(3000, 1000) {
+        @Override
+        public void onTick(long millisUntilFinished) {
+            timer--;
+            return;
+        }
+
+        @Override
+        public void onFinish() {
+            timer = 0;
+            return;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

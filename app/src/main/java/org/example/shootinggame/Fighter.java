@@ -138,7 +138,7 @@ public class Fighter extends BaseObject {
         return getBulletNum();
     }
     public int store() {
-        bulletNum+=15;
+        bulletNum+=10;
         return getBulletNum();
     }
 
