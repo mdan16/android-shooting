@@ -22,7 +22,7 @@ public class Fighter extends BaseObject {
     public boolean enemy;
 
     private String name;
-    private int hp = 300;
+    private int hp = 500;
     private int bulletNum = 20;
 
     private Random rnd = new Random();

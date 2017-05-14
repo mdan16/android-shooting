@@ -3,11 +3,11 @@
     <string name="long_app_name">Shooting Game</string>
     <string name="actio_setting">Settings</string>
     <string name="continue_label">Continue</string>
-    <string name="new_game_label">New Game</string>
+    <string name="new_game_label">Start</string>
     <string name="about_label">About</string>
     <string name="ok_label">OK</string>
     <string name="about_title">About Shooting Game</string>
-    <string name="about_text">about text hogehoge</string>
+    <string name="about_text">これはシューティングゲームです。</string>
 
     <string name="title_activity_game">GameActivity</string>
     <string name="dummy_button">Dummy Button</string>

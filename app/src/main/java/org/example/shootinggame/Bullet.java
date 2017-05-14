@@ -13,7 +13,7 @@ public class Bullet extends BaseObject {
 
     private final Paint paint = new Paint();
 
-    private static final float SIZE = 15f;
+    private float SIZE = 15f;
     private boolean enemy;
 
     Bullet(RectF rect, boolean enemy) {
@@ -22,6 +22,9 @@ public class Bullet extends BaseObject {
 
         paint.setColor(Color.RED);
         this.enemy = enemy;
+        if (enemy) {
+            SIZE = 20f;
+        }
     }
 
     public boolean isEne() {

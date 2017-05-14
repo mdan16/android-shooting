@@ -306,7 +306,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                         if (bullet.getType() == Fighter.Type.FighterBullet) {
                             fighter.redHp(50);
                         } else {
-                            enemy.redHp(50);
+                            //enemy.redHp(50);
                         }
                     } else if (obstacle.getType() == Fighter.Type.Anko) {
                         if (bullet.getType() == Fighter.Type.FighterBullet) {
