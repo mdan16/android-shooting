@@ -9,6 +9,8 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.os.CountDownTimer;
+import android.os.Vibrator;
 import android.view.Surface;
 import android.view.View;
 import android.graphics.Color;
@@ -34,6 +36,22 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private static final int DRAW_INTERVAL = 1000 / 60;
     private static final float SCORE_TEXT_SIZE = 60.0f;
 
+    private boolean storeFlag = false;
+    private int timer = 180;
+    final CountDownTimer countDownTimer = new CountDownTimer(180000, 1000) {
+        @Override
+        public void onTick(long millisUntilFinished) {
+            timer--;
+            return;
+        }
+
+        @Override
+        public void onFinish() {
+            timer = 0;
+            return;
+        }
+    };
+
     private final Bitmap fighterBitmap;
     private final Bitmap enemyBitmap;
     private Fighter fighter;
@@ -42,6 +60,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     private final Paint paintScore = new Paint();
     private Random rnd = new Random();
+    private Context context;
 
     public interface EventCallback {
         void onGameOver(String winnerName, String loserName, boolean win);
@@ -56,6 +75,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     public GameView(Context context) {
         super(context);
+        this.context = context;
 
         paintScore.setColor(Color.BLACK);
         paintScore.setTextSize(SCORE_TEXT_SIZE);
@@ -67,6 +87,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         Bitmap enemyBitmapTemp = BitmapFactory.decodeResource(getResources(), R.drawable.enemy);
         enemyBitmap = Bitmap.createScaledBitmap(enemyBitmapTemp, 100, 100, false);
 
+        countDownTimer.start();
 
         getHolder().addCallback(this);
     }
@@ -205,6 +226,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             if (fighter.isHit(bullet)) {
                 bullet.hit();
                 fighter.hit();
+                ((Vibrator)context.getSystemService(Context.VIBRATOR_SERVICE)).vibrate(300);
             } else if (enemy.isHit(bullet)) {
                 enemy.hit();
                 bullet.hit();
@@ -248,8 +270,17 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 }
             });
         }
+        if (timer%5 == 0 && storeFlag == true) {
+            fighter.store();
+            enemy.store();
+            storeFlag = false;
+        } else if ((timer+1)%5 == 0) {
+            storeFlag = true;
+        }
         canvas.drawText("Fighter HP: " + fighterHp, 0, SCORE_TEXT_SIZE, paintScore);
         canvas.drawText("Enemy HP: " + enemyHp, 0, SCORE_TEXT_SIZE*2, paintScore);
+        canvas.drawText("Bullet: " + fighter.getBulletNum(), 0, SCORE_TEXT_SIZE*3, paintScore);
+        canvas.drawText("Time: " + timer, 0, SCORE_TEXT_SIZE*4, paintScore);
     }
 
     public static void drawObjectList(Canvas canvas, List<BaseObject> objectList, int width, int height) {
@@ -277,13 +308,19 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     private void fighterFire() {
-        Bullet bullet = new Bullet(fighter.rect, false);
-        bulletList.add(0, bullet);
+        if (fighter.getBulletNum() > 0) {
+            Bullet bullet = new Bullet(fighter.rect, false);
+            bulletList.add(0, bullet);
+            fighter.fire();
+        }
     }
     private void enemyFire() {
-        if (rnd.nextInt(10) > 8) {
-            Bullet bullet = new Bullet(enemy.rect, true);
-            bulletList.add(0, bullet);
+        if (enemy.getBulletNum() > 0) {
+            if (rnd.nextInt(30) > 27) {
+                Bullet bullet = new Bullet(enemy.rect, true);
+                bulletList.add(0, bullet);
+                enemy.fire();
+            }
         }
     }
 

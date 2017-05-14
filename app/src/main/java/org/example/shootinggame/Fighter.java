@@ -23,6 +23,7 @@ public class Fighter extends BaseObject {
 
     private String name;
     private int hp = 100;
+    private int bulletNum = 20;
 
     private Random rnd = new Random();
     private static int enemySpeed = 10;
@@ -105,6 +106,17 @@ public class Fighter extends BaseObject {
     }
     public String getName() {
         return name;
+    }
+    public int getBulletNum() {
+        return bulletNum;
+    }
+    public int fire() {
+        bulletNum--;
+        return getBulletNum();
+    }
+    public int store() {
+        bulletNum+=10;
+        return getBulletNum();
     }
 
     @Override
