@@ -17,6 +17,8 @@ public abstract class BaseObject {
         Enemy,
         FighterBullet,
         EnemyBullet,
+        Obstacle,
+        Anko
     }
 
     public abstract Type getType();

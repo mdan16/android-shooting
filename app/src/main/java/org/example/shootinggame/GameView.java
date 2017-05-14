@@ -32,12 +32,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import android.os.Handler;
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
-    private static final float ACCEL_WEIGHT = 3f;
+    private static final float ACCEL_WEIGHT = 5f;
     private static final int DRAW_INTERVAL = 1000 / 60;
     private static final float SCORE_TEXT_SIZE = 60.0f;
 
     private boolean storeFlag = false;
-    private int timer = 180;
+    private boolean obstacleFlag = false;
+    private int timer = 90;
     final CountDownTimer countDownTimer = new CountDownTimer(180000, 1000) {
         @Override
         public void onTick(long millisUntilFinished) {
@@ -54,13 +55,24 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     private final Bitmap fighterBitmap;
     private final Bitmap enemyBitmap;
+    private final Bitmap obstacleBitmap;
+    private final Bitmap obstacle2Bitmap;
     private Fighter fighter;
     private Fighter enemy;
+    private final List<BaseObject> obstacleList = new ArrayList<>();
     private final List<BaseObject> bulletList = new ArrayList<>();
 
     private final Paint paintScore = new Paint();
     private Random rnd = new Random();
     private Context context;
+
+    enum Type {
+        Fighter,
+        Enemy,
+        FighterBullet,
+        EnemyBullet,
+        Obstacle
+    }
 
     public interface EventCallback {
         void onGameOver(String winnerName, String loserName, boolean win);
@@ -82,10 +94,16 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         paintScore.setAntiAlias(true);
 
         Bitmap fighterBitmapTemp = BitmapFactory.decodeResource(getResources(), R.drawable.fighter);
-        fighterBitmap = Bitmap.createScaledBitmap(fighterBitmapTemp, 100, 100, false);
+        fighterBitmap = Bitmap.createScaledBitmap(fighterBitmapTemp, 150, 150, false);
 
         Bitmap enemyBitmapTemp = BitmapFactory.decodeResource(getResources(), R.drawable.enemy);
-        enemyBitmap = Bitmap.createScaledBitmap(enemyBitmapTemp, 100, 100, false);
+        enemyBitmap = Bitmap.createScaledBitmap(enemyBitmapTemp, 150, 150, false);
+
+        Bitmap obstacleBitmapTemp = BitmapFactory.decodeResource(getResources(), R.drawable.obstacle2);
+        obstacleBitmap = Bitmap.createScaledBitmap(obstacleBitmapTemp, 200, 200, false);
+
+        Bitmap obstacle2BitmapTemp = BitmapFactory.decodeResource(getResources(), R.drawable.anko);
+        obstacle2Bitmap = Bitmap.createScaledBitmap(obstacle2BitmapTemp, 150, 150, false);
 
         countDownTimer.start();
 
@@ -219,6 +237,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         }
 
         drawObjectList(canvas, bulletList, width, height);
+        drawObjectList(canvas, obstacleList, width, height);
 
         for (int i = 0; i < bulletList.size(); i++) {
             BaseObject bullet = bulletList.get(i);
@@ -232,6 +251,20 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 bullet.hit();
             }
 
+            for (int o = 0; o < obstacleList.size(); o++) {
+                BaseObject obstacle = obstacleList.get(o);
+
+                if (obstacle.isHit(bullet)) {
+                    bullet.hit();
+                    obstacle.hit();
+                    if (bullet.getType() == Fighter.Type.FighterBullet) {
+                        fighter.redHp(50);
+                    } else {
+                        enemy.redHp(50);
+                    }
+                }
+            }
+
             for (int j = i+1; j < bulletList.size(); j++) {
                 BaseObject bullet2 = bulletList.get(j);
 
@@ -242,7 +275,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             }
         }
 
-        enemy.enemyMove();
+        enemy.enemyMove(fighter);
         enemyFire();
 
         fighter.draw(canvas);
@@ -270,13 +303,27 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 }
             });
         }
-        if (timer%5 == 0 && storeFlag == true) {
+        if (timer%10 == 0 && storeFlag == true) {
             fighter.store();
             enemy.store();
             storeFlag = false;
-        } else if ((timer+1)%5 == 0) {
+        } else if ((timer+1)%10 == 0) {
             storeFlag = true;
         }
+
+        if (timer%10 == 0 && obstacleFlag == true) {
+            if (rnd.nextInt(4) > 2) {
+                Anko anko = new Anko(obstacle2Bitmap);
+                obstacleList.add(0, anko);
+            } else {
+                Obstacle obstacle = new Obstacle(obstacleBitmap);
+                obstacleList.add(0, obstacle);
+            }
+            obstacleFlag = false;
+        } else if ((timer+1)%10 == 0) {
+            obstacleFlag = true;
+        }
+
         canvas.drawText("Fighter HP: " + fighterHp, 0, SCORE_TEXT_SIZE, paintScore);
         canvas.drawText("Enemy HP: " + enemyHp, 0, SCORE_TEXT_SIZE*2, paintScore);
         canvas.drawText("Bullet: " + fighter.getBulletNum(), 0, SCORE_TEXT_SIZE*3, paintScore);

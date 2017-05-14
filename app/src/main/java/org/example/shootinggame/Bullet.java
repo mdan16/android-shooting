@@ -9,7 +9,7 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 
 public class Bullet extends BaseObject {
-    private static final float MOVE_WEIGHT = 12.0f;
+    private static final float MOVE_WEIGHT = 48.0f;
 
     private final Paint paint = new Paint();
 
@@ -22,6 +22,10 @@ public class Bullet extends BaseObject {
 
         paint.setColor(Color.RED);
         this.enemy = enemy;
+    }
+
+    public boolean isEne() {
+        return enemy;
     }
 
     @Override

@@ -22,7 +22,7 @@ public class Fighter extends BaseObject {
     public boolean enemy;
 
     private String name;
-    private int hp = 100;
+    private int hp = 300;
     private int bulletNum = 20;
 
     private Random rnd = new Random();
@@ -69,13 +69,21 @@ public class Fighter extends BaseObject {
         rect.offset(xOffset, 0);
     }
 
-    public void enemyMove() {
+    public void enemyMove(Fighter fighter) {
         if (this.getType() == Type.Fighter) {
             return;
         }
 
         if (rnd.nextInt(100) > 95) {
             enemySpeed = -1 * enemySpeed;
+        }
+
+        if (rnd.nextInt(100) > 95) {
+            if (rect.left > fighter.rect.left) {
+                enemySpeed = -10;
+            } else {
+                enemySpeed = 10;
+            }
         }
         move(enemySpeed);
     }
@@ -101,6 +109,16 @@ public class Fighter extends BaseObject {
         return;
     }
 
+    public void redHp(int reduceNum) {
+        hp -= reduceNum;
+        return;
+    }
+
+    public void incHp(int incNum) {
+        hp += incNum;
+        return;
+    }
+
     public int getHp() {
         return hp;
     }
@@ -115,7 +133,7 @@ public class Fighter extends BaseObject {
         return getBulletNum();
     }
     public int store() {
-        bulletNum+=10;
+        bulletNum+=15;
         return getBulletNum();
     }
 
