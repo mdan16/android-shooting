@@ -257,10 +257,20 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                 if (obstacle.isHit(bullet)) {
                     bullet.hit();
                     obstacle.hit();
-                    if (bullet.getType() == Fighter.Type.FighterBullet) {
-                        fighter.redHp(50);
-                    } else {
-                        enemy.redHp(50);
+                    if (obstacle.getType() == Fighter.Type.Obstacle) {
+                        if (bullet.getType() == Fighter.Type.FighterBullet) {
+                            fighter.redHp(50);
+                        } else {
+                            enemy.redHp(50);
+                        }
+                    } else if (obstacle.getType() == Fighter.Type.Anko) {
+                        if (bullet.getType() == Fighter.Type.FighterBullet) {
+                            fighter.incHp(100);
+                            fighter.incBullet(20);
+                        } else {
+                            enemy.incHp(100);
+                            fighter.incBullet(20);
+                        }
                     }
                 }
             }
@@ -284,17 +294,27 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         int fighterHp = fighter.getHp();
         int enemyHp = enemy.getHp();
 
-        if (fighterHp <= 0 || enemyHp <= 0) {
+        if (fighterHp <= 0 || enemyHp <= 0 || timer == 0) {
             final String winnerName, loserName;
             final boolean win;
             if (fighterHp <= 0) {
                 winnerName = enemy.getName();
                 loserName = fighter.getName();
                 win = false;
-            } else {
+            } else if (enemyHp <= 0){
                 winnerName = fighter.getName();
                 loserName = enemy.getName();
                 win = true;
+            } else {
+                if (fighterHp > enemyHp) {
+                    winnerName = fighter.getName();
+                    loserName = enemy.getName();
+                    win = true;
+                } else {
+                    winnerName = enemy.getName();
+                    loserName = fighter.getName();
+                    win = false;
+                }
             }
             handler.post(new Runnable() {
                 @Override

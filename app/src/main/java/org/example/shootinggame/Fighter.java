@@ -119,6 +119,11 @@ public class Fighter extends BaseObject {
         return;
     }
 
+    public void incBullet(int incNum) {
+        bulletNum += incNum;
+        return;
+    }
+
     public int getHp() {
         return hp;
     }
